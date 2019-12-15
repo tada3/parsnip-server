@@ -3,34 +3,19 @@ package main
 import (
 	"fmt"
 
-	"flag"
-	"git-dev.linecorp.com/tadafumi-yoshihara/idpgo/handler"
 	"github.com/gin-gonic/gin"
+	"github.com/tada3/parsnip-server/handler"
 )
 
 func main() {
-	fmt.Println("idpgo started!")
-
-	flag.Parse()
-	args := flag.Args()
-	fmt.Println(args)
-
-	if len(args) > 0 {
-		env := args[0]
-		handler.SetEnv(env)
-	}
+	fmt.Println("parsni-server started!")
 
 	router := gin.Default()
-	router.LoadHTMLGlob("dist/*.html")
+	router.Use(cors())
 
-	router.GET("/", handler.Root)
+	router.GET("/tasks", handler.GetTasks)
 
-	router.POST("/logout", handler.Logout)
-	router.GET("/logout", handler.Logout)
-	router.GET("/login", handler.Login)
-
-	router.GET("api/v1/getLogin", handler.GetLoginStatus)
-	router.GET("api/v1/logoutUrl", handler.GetLogoutURL)
+	router.POST("/task", handler.AddTask)
 
 	router.GET("/ping", func(ctx *gin.Context) {
 		ctx.JSON(200, gin.H{
@@ -38,9 +23,22 @@ func main() {
 		})
 	})
 
-	router.Static("/js", "./dist/js")
-
 	router.Run()
 
 	fmt.Println("done")
+}
+
+func cors() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET,POST,HEAD,OPTIONS")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, X-Max")
+		c.Next()
+
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(200)
+		} else {
+			c.Next()
+		}
+	}
 }
