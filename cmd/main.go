@@ -15,7 +15,9 @@ func main() {
 
 	router.GET("/tasks", handler.GetTasks)
 
-	router.POST("/task", handler.AddTask)
+	router.POST("/tasks", handler.AddTask)
+
+	router.PUT("/tasks/:taskID", handler.EditTask)
 
 	router.GET("/ping", func(ctx *gin.Context) {
 		ctx.JSON(200, gin.H{
@@ -31,7 +33,7 @@ func main() {
 func cors() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
-		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET,POST,HEAD,OPTIONS")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET,POST,PUT,HEAD,OPTIONS")
 		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, X-Max")
 		c.Next()
 
